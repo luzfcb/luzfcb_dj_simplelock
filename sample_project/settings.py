@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app_test',
+    'sample_project.app_test',
     'luzfcb_dj_simplelock',
 ]
 
@@ -52,7 +52,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'test_settings.urls'
+ROOT_URLCONF = 'sample_project.urls'
 
 TEMPLATES = [
     {
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'test_settings.wsgi.application'
+WSGI_APPLICATION = 'sample_project.wsgi.application'
 
 
 # Database

@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'sample_project'))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_settings.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sample_project.settings")
 
 try:
     from django.conf import settings

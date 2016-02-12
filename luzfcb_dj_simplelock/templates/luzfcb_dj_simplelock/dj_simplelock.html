@@ -1,28 +1,22 @@
-{% extends 'luzfcb_dj_simplelock/base_template.html' %}
+{% load staticfiles %}
+{% block dj_simplelock %}
 
-{% block content %}
 
-    <form action="{% url 'pessoa:update' object.pk %}" method="post" id="id_pessoa:update_form">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="id_pessoa_update_form_submit">
-    </form>
+    <div style="display: none">
 
-{% endblock content %}
+        <form action="{% url update_view_str object.pk %}" method="post" id="{{ deletar_form_id }}">
+            {% csrf_token %}
+            {{ deletar_form }}
+        </form>
 
-{% block extra_js %}
-{#    <div style="display: none">#}
-{##}
-{#        <form action="{% url update_view_str object.pk %}" method="post" id="{{ deletar_form_id }}">#}
-{#            {% csrf_token %}#}
-{#            {{ deletar_form }}#}
-{#        </form>#}
-{##}
-{#        <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidar_form_id }}">#}
-{#            {% csrf_token %}#}
-{#            {{ revalidar_form }}#}
-{#        </form>#}
-{#    </div>#}
+        <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidar_form_id }}">
+            {% csrf_token %}
+            {{ revalidar_form }}
+        </form>
+    </div>
+
+    <script src="{% static 'luzfcb_dj_simplelock/js/jquery-2.2.0.min.js' %}"></script>
+    <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
 
     <script>(function () {
         'use strict';
@@ -85,7 +79,7 @@
             $deletar_form.submit();
         }
 
-        var timeout = setInterval(revalidar, revalidate_lock_at_every_x_seconds * 1000);
+        //var timeout = setInterval(revalidar, revalidate_lock_at_every_x_seconds * 1000);
 
         if (window.addEventListener) {
             window.addEventListener('beforeunload', desbloquear, false);
@@ -95,5 +89,4 @@
 
     })();
     </script>
-
-{% endblock extra_js %}
+{% endblock dj_simplelock %}
