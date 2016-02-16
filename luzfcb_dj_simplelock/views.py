@@ -1,16 +1,19 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import logging
 
 from django.contrib import messages
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from sample_project.app_test.models import Person
 
-from .forms import ReValidarForm, DeletarForm
+from .forms import DeletarForm, ReValidarForm
 from .models import ObjectLock
 from .utils import get_label
-from sample_project.app_test.models import Person
 
 ###################################################################################################################
 lock_expire_time_in_seconds = 30

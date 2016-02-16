@@ -127,6 +127,8 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "fail", "id": self.model_instance.pk, "mensagem": "erro ao deletar"})
 
     def test_expire_lock(self):
+        object_lock_original = ObjectLock.objects.get(model_pk=self.model_instance.pk,
+                                                      app_and_model=self.model_instance_app_label)
         from time import sleep
         sleep(self.lock_expire_time_in_seconds + 1)
 
@@ -135,4 +137,7 @@ class ExclusiveEditionGetNoLock(TestCase):
         response2 = self.client.get(self.view_url, follow=True)
         object_lock = ObjectLock.objects.get(model_pk=self.model_instance.pk,
                                              app_and_model=self.model_instance_app_label)
+
+        print(object_lock_original)
+        print(object_lock)
         self.assertFalse(object_lock.bloqueado_por == self.user1, "Nao é o usuario que bloqueou")

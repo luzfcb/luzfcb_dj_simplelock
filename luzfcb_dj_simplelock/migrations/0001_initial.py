@@ -27,7 +27,8 @@ class Migration(migrations.Migration):
                 ('expire_date', models.DateTimeField(verbose_name='expire date')),
                 ('app_and_model', models.CharField(blank=True, editable=False, max_length=350)),
                 ('model_pk', models.IntegerField(blank=True, db_index=True, editable=False, null=True)),
-                ('bloqueado_por', models.ForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='luzfcb_dj_simplelock_objectlock_bloqueado_por', to=settings.AUTH_USER_MODEL)),
+                ('bloqueado_por', models.ForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL,
+                                                    related_name='luzfcb_dj_simplelock_objectlock_bloqueado_por', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

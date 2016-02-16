@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.db import models
-
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
+@python_2_unicode_compatible
 class ObjectLock(models.Model):
     bloqueado_em = models.DateTimeField(default=timezone.now, blank=True, editable=False)
     bloqueado_por = models.ForeignKey(to=USER_MODEL,
@@ -22,3 +25,7 @@ class ObjectLock(models.Model):
     app_and_model = models.CharField(max_length=350, editable=False, blank=True)
     model_pk = models.IntegerField(null=True,
                                    blank=True, editable=False, db_index=True)
+
+    def __str__(self):
+        return 'bp:{} - et:{} - app_and_model:{} - model_pk:{}'.format(self.bloqueado_por_user_name, self.expire_date,
+                                                                       self.app_and_model, self.model_pk)

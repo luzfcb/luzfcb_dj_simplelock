@@ -8,6 +8,9 @@ luzfcb_dj_simplelock
 .. image:: https://travis-ci.org/luzfcb/luzfcb_dj_simplelock.png?branch=master
     :target: https://travis-ci.org/luzfcb/luzfcb_dj_simplelock
 
+.. image:: https://codecov.io/github/luzfcb/luzfcb_dj_simplelock/coverage.svg?branch=master
+    :target: https://codecov.io/github/luzfcb/luzfcb_dj_simplelock?branch=master
+
 para evitar edição concorrente, concede temporariamente a capacidade de edição exclusiva de uma instancia de um model para um determinado usuario
 
 Documentation

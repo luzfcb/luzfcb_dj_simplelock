@@ -46,7 +46,8 @@ with open('HISTORY.rst') as history_file:
 setup(
     name='luzfcb_dj_simplelock',
     version=version,
-    description="""para evitar edição concorrente, concede temporariamente a capacidade de edição exclusiva de uma instancia de um model para um determinado usuario""",
+    description="""para evitar edição concorrente, concede temporariamente"""
+                """a capacidade de edição exclusiva de uma instancia de um model para um determinado usuario""",
     long_description=readme + '\n\n' + history,
     author='Fabio C. Barrionuevo da Luz',
     author_email='bnafta@gmail.com',
