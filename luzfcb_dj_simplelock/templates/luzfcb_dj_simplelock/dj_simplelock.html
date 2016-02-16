@@ -1,18 +1,18 @@
 {% load staticfiles %}
 {% block dj_simplelock %}
 
-    {% if revalidar_form and revalidar_form %}
+    {% if revalidate_form and delete_form %}
 
         <div style="display: none" id="dj_simplelock">
 
-            <form action="{% url update_view_str object.pk %}" method="post" id="{{ deletar_form_id }}">
+            <form action="{% url update_view_str object.pk %}" method="post" id="{{ delete_form_id }}">
                 {% csrf_token %}
-                {{ deletar_form }}
+                {{ delete_form }}
             </form>
 
-            <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidar_form_id }}">
+            <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidate_form_id }}">
                 {% csrf_token %}
-                {{ revalidar_form }}
+                {{ revalidate_form }}
             </form>
         </div>
 
@@ -24,11 +24,11 @@
             // Use 'djsimplelock' as namespace.
             //if (window.luzfcb == undefined) window.luzfcb = {};
 
-            var $revalidar_form = $('#{{ revalidar_form_id }}');
-            var $deletar_form = $('#{{ deletar_form_id }}');
+            var $revalidate_form = $('#{{ revalidate_form_id }}');
+            var $delete_form = $('#{{ delete_form_id }}');
             var revalidate_lock_at_every_x_seconds = parseInt({{ revalidate_lock_at_every_x_seconds }});
 
-            $revalidar_form.on('submit', function (event) {
+            $revalidate_form.on('submit', function (event) {
                 event.preventDefault();
                 console.log("form " + this.id + " submitted!"); // sanity check
                 //console.log(this);
@@ -36,7 +36,7 @@
             });
 
 
-            $deletar_form.on('submit', function (event) {
+            $delete_form.on('submit', function (event) {
                 event.preventDefault();
                 console.log("form " + this.id + " submitted!"); // sanity check
                 //console.log(this);
@@ -72,15 +72,15 @@
                 });
             }
 
-            function revalidar() {
-                $revalidar_form.submit();
+            function revalidate() {
+                $revalidate_form.submit();
             }
 
             function desbloquear() {
-                $deletar_form.submit();
+                $delete_form.submit();
             }
 
-            //var timeout = setInterval(revalidar, revalidate_lock_at_every_x_seconds * 1000);
+            var timeout = setInterval(revalidate, revalidate_lock_at_every_x_seconds * 1000);
 
             if (window.addEventListener) {
                 window.addEventListener('beforeunload', desbloquear, false);

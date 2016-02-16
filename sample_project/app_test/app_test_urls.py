@@ -16,7 +16,7 @@ urlpatterns = [
         name='detail'
         ),
     url(r'^update/(?P<pk>\d+)/$',
-        luzfcb_dj_simplelock_views.editar,
+        luzfcb_dj_simplelock_views.EditarView.as_view(),
         name='editar',
         ),
 ]
