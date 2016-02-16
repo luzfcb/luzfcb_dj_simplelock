@@ -37,7 +37,7 @@ class ExclusiveEditionGetNoLock(TestCase):
             'first_name': 'Maria',
             'last_name': 'Neo Matrix'
         }
-        self.lock_expire_time_in_seconds = 1
+        self.lock_expire_time_in_seconds = 2
         # ugly monkeypath
         import luzfcb_dj_simplelock
         luzfcb_dj_simplelock.views.lock_expire_time_in_seconds = self.lock_expire_time_in_seconds
@@ -78,6 +78,18 @@ class ExclusiveEditionGetNoLock(TestCase):
 
         self.assertEqual(json.loads(response_post.content.decode()),
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "revalidado com sucesso"})
+
+        from time import sleep
+        sleep(self.lock_expire_time_in_seconds)
+        response_post = self.client.post(path=self.view_url,
+                                         data=data,
+                                         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(json.loads(response_post.content.decode()),
+                         {"status": "success", "id": self.model_instance.pk, "mensagem": "revalidado com sucesso"})
+
+
+
 
     def test_ajax_fail_revalidate_lock(self):
         revalidar_form = ReValidarForm(prefix=lock_revalidate_form_prefix,
