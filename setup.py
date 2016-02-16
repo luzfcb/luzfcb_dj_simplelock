@@ -37,13 +37,17 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
-readme = open('README.rst').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+
+with open('HISTORY.rst') as history_file:
+    history = history_file.read().replace('.. :changelog:', '')
 
 setup(
     name='luzfcb_dj_simplelock',
     version=version,
-    description="""para evitar edição concorrente, concede temporariamente a capacidade de edição exclusiva de uma instancia de um model para um determinado usuario""",
+    description="""para evitar edição concorrente, concede temporariamente"""
+                """a capacidade de edição exclusiva de uma instancia de um model para um determinado usuario""",
     long_description=readme + '\n\n' + history,
     author='Fabio C. Barrionuevo da Luz',
     author_email='bnafta@gmail.com',

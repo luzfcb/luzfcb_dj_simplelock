@@ -1,30 +1,17 @@
+import os
 import sys
+
+sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'sample_project'))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sample_project.settings")
 
 try:
     from django.conf import settings
     from django.test.utils import get_runner
 
-    settings.configure(
-        DEBUG=True,
-        USE_TZ=True,
-        DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-            }
-        },
-        ROOT_URLCONF="luzfcb_dj_simplelock.urls",
-        INSTALLED_APPS=[
-            "django.contrib.auth",
-            "django.contrib.contenttypes",
-            "django.contrib.sites",
-            "luzfcb_dj_simplelock",
-        ],
-        SITE_ID=1,
-        MIDDLEWARE_CLASSES=(),
-    )
-
     try:
         import django
+
         setup = django.setup
     except AttributeError:
         pass
@@ -33,6 +20,7 @@ try:
 
 except ImportError:
     import traceback
+
     traceback.print_exc()
     raise ImportError("To fix this error, run: pip install -r requirements-test.txt")
 

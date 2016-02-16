@@ -1,0 +1,94 @@
+{% load staticfiles %}
+{% block dj_simplelock %}
+
+    {% if revalidate_form and delete_form %}
+
+        <div style="display: none" id="dj_simplelock">
+
+            <form action="{% url update_view_str object.pk %}" method="post" id="{{ delete_form_id }}">
+                {% csrf_token %}
+                {{ delete_form }}
+            </form>
+
+            <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidate_form_id }}">
+                {% csrf_token %}
+                {{ revalidate_form }}
+            </form>
+        </div>
+
+        <script src="{% static 'luzfcb_dj_simplelock/js/jquery-2.2.0.min.js' %}"></script>
+        <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
+
+        <script>(function () {
+            'use strict';
+            // Use 'djsimplelock' as namespace.
+            //if (window.luzfcb == undefined) window.luzfcb = {};
+
+            var $revalidate_form = $('#{{ revalidate_form_id }}');
+            var $delete_form = $('#{{ delete_form_id }}');
+            var revalidate_lock_at_every_x_seconds = parseInt({{ revalidate_lock_at_every_x_seconds }});
+
+            $revalidate_form.on('submit', function (event) {
+                event.preventDefault();
+                console.log("form " + this.id + " submitted!"); // sanity check
+                //console.log(this);
+                create_post(this);
+            });
+
+
+            $delete_form.on('submit', function (event) {
+                event.preventDefault();
+                console.log("form " + this.id + " submitted!"); // sanity check
+                //console.log(this);
+                create_post(this);
+            });
+
+            // AJAX for posting
+            function create_post(form_element) {
+                console.log("create post is working!"); // sanity check
+                var data = $(form_element).serializeArray();
+
+
+                data.push({'name': form_element.id, 'value': form_element.id});
+
+                //console.table(data);
+
+                $.ajax({
+                    url: $(form_element).attr('action').replace(/\s/g, ""), // the endpoint
+                    cache: false,
+                    type: "POST", // http method
+                    data: data // data sent with the post request
+                }).done(function (json) {
+                    // handle a successful response
+                    console.log(json); // log the returned json to the console
+                    console.log("done"); // another sanity check
+                }).fail(function (xhr, errmsg, err) {
+                    // handle a non-successful response
+                    console.log('fail');
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+
+                }).always(function () {
+                    console.log('always');
+                });
+            }
+
+            function revalidate() {
+                $revalidate_form.submit();
+            }
+
+            function desbloquear() {
+                $delete_form.submit();
+            }
+
+            var timeout = setInterval(revalidate, revalidate_lock_at_every_x_seconds * 1000);
+
+            if (window.addEventListener) {
+                window.addEventListener('beforeunload', desbloquear, false);
+            } else {
+                window.attachEvent('onbeforeunload', desbloquear);
+            }
+
+        })();
+        </script>
+    {% endif %}
+{% endblock dj_simplelock %}
