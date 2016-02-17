@@ -9,4 +9,5 @@ isort
 splinter
 cssselect
 lxml
+PyVirtualDisplay
 # Additional test requirements go here

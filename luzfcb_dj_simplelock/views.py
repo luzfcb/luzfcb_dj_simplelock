@@ -7,28 +7,23 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect
 from django.utils import timezone
-from django.views import generic
-
-from sample_project.app_test.models import Person
 
 from .forms import DeletarForm, ReValidarForm
 from .models import ObjectLock
 from .utils import get_label
 
 ###################################################################################################################
-lock_expire_time_in_seconds = 30
-lock_revalidated_at_every_x_seconds = 5
-lock_revalidate_form_id = 'id_revalidar_form'
-lock_revalidate_form_prefix = 'revalidar'
-lock_delete_form_id = 'id_deletar_form'
-lock_delete_form_prefix = 'deletar'
-update_view_str = 'person:editar'
-detail_view_str = 'person:detail'
-
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
+
+default_lock_expire_time_in_seconds = 30
+default_lock_revalidated_at_every_x_seconds = 5
+default_lock_revalidate_form_id = 'id_revalidar_form'
+default_lock_revalidate_form_prefix = 'revalidar'
+default_lock_delete_form_id = 'id_deletar_form'
+default_lock_delete_form_prefix = 'deletar'
 
 
 def revalidate_lock(documento_lock, updated_values_dict):
@@ -41,29 +36,59 @@ def revalidate_lock(documento_lock, updated_values_dict):
 
 
 class LuzfcbLockMixin(object):
-    template_name = 'app_test/person_update.html'
-    model = Person
-    fields = ('nome',)
+    lock_expire_time_in_seconds = None
+    lock_revalidated_at_every_x_seconds = None
+    lock_revalidate_form_id = None
+    lock_revalidate_form_prefix = None
+    lock_delete_form_id = None
+    lock_delete_form_prefix = None
 
-    def get_success_url(self):
-        return reverse('person:editar', kwargs={'pk': self.object.pk})
+    def get_lock_expire_time_in_seconds(self):
+        if not self.lock_expire_time_in_seconds:
+            return default_lock_expire_time_in_seconds
+        return self.lock_expire_time_in_seconds
+
+    def get_lock_revalidated_at_every_x_seconds(self):
+        if not self.lock_revalidated_at_every_x_seconds:
+            return default_lock_revalidated_at_every_x_seconds
+        return self.lock_revalidated_at_every_x_seconds
+
+    def get_lock_revalidate_form_id(self):
+        if not self.lock_revalidate_form_id:
+            return default_lock_revalidate_form_id
+        return self.lock_revalidate_form_id
+
+    def get_lock_revalidate_form_prefix(self):
+        if not self.lock_revalidate_form_prefix:
+            return default_lock_revalidate_form_prefix
+        return self.lock_revalidate_form_prefix
+
+    def get_lock_delete_form_id(self):
+        if not self.lock_delete_form_id:
+            return default_lock_delete_form_id
+        return self.lock_delete_form_id
+
+    def get_lock_delete_form_prefix(self):
+        if not self.lock_delete_form_prefix:
+            return default_lock_delete_form_prefix
+        return self.lock_delete_form_prefix
 
     def get_context_data(self, **kwargs):
         context = super(LuzfcbLockMixin, self).get_context_data(**kwargs)
 
-        revalidate_form = ReValidarForm(prefix=lock_revalidate_form_prefix,
+        revalidate_form = ReValidarForm(prefix=self.get_lock_revalidate_form_prefix(),
                                         initial={'hash': self.object.pk, 'id': self.object.pk})
-        delete_form = DeletarForm(prefix=lock_delete_form_prefix,
+        delete_form = DeletarForm(prefix=self.get_lock_delete_form_prefix(),
                                   initial={'hash': self.object.pk, 'id': self.object.pk})
 
         context.update(
             {
-                'update_view_str': update_view_str,
-                'delete_form_id': lock_delete_form_id,
+                'update_view_str': self.update_view_str,
+                'delete_form_id': self.get_lock_delete_form_id(),
                 'delete_form': delete_form,
                 'revalidate_form': revalidate_form,
-                'revalidate_form_id': lock_revalidate_form_id,
-                'revalidate_lock_at_every_x_seconds': lock_revalidated_at_every_x_seconds
+                'revalidate_form_id': self.get_lock_revalidate_form_id(),
+                'revalidate_lock_at_every_x_seconds': self.get_lock_revalidated_at_every_x_seconds()
             }
         )
         return context
@@ -72,7 +97,7 @@ class LuzfcbLockMixin(object):
         original_response = super(LuzfcbLockMixin, self).get(request, *args, **kwargs)
         label = get_label(self.object)
         now_time = timezone.now()
-        next_expire_time = now_time + timezone.timedelta(seconds=lock_expire_time_in_seconds)
+        next_expire_time = now_time + timezone.timedelta(seconds=self.get_lock_expire_time_in_seconds())
         updated_values = {'model_pk': self.object.pk,
                           'app_and_model': label,
                           'bloqueado_por': request.user,
@@ -102,7 +127,7 @@ class LuzfcbLockMixin(object):
             # nao autoriza a edicao e redireciona para a pagina de visualizacao,
             # informando o usuario que o documento ja esta sendo editado
             if documento_lock and not documento_lock.bloqueado_por.pk == request.user.pk:
-                detail_url = reverse(detail_view_str, kwargs={'pk': self.object.pk})
+                detail_url = reverse(self.detail_view_str, kwargs={'pk': self.object.pk})
                 msg = 'Documento está sendo editado por {} - Disponivel somente para visualização'.format(
                     documento_lock.bloqueado_por_full_name or documento_lock.bloqueado_por_user_name)
                 messages.add_message(request, messages.INFO, msg)
@@ -116,7 +141,7 @@ class LuzfcbLockMixin(object):
         original_response = super(LuzfcbLockMixin, self).post(request, *args, **kwargs)
         label = get_label(self.object)
         now_time = timezone.now()
-        next_expire_time = now_time + timezone.timedelta(seconds=lock_expire_time_in_seconds)
+        next_expire_time = now_time + timezone.timedelta(seconds=self.get_lock_expire_time_in_seconds())
         updated_values = {'model_pk': self.object.pk,
                           'app_and_model': label,
                           'bloqueado_por': request.user,
@@ -136,14 +161,14 @@ class LuzfcbLockMixin(object):
 
             revalidate_form = ReValidarForm(data=request.POST,
                                             files=request.FILES,
-                                            prefix=lock_revalidate_form_prefix,
+                                            prefix=self.get_lock_revalidate_form_prefix(),
                                             id_obj=self.object.pk)
             delete_form = DeletarForm(data=request.POST,
                                       files=request.FILES,
-                                      prefix=lock_delete_form_prefix,
+                                      prefix=self.get_lock_delete_form_prefix(),
                                       id_obj=self.object.pk)
 
-            if lock_revalidate_form_id in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
+            if self.get_lock_revalidate_form_id() in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
                 if revalidate_form.is_valid():
                     # se registro de bloqueio nao eh novo, e o ele ja expirou, atualiza o registro
                     # para o usuario atual da requisicao e atualiza o novo tempo de expiracao
@@ -166,7 +191,7 @@ class LuzfcbLockMixin(object):
                         'status': 'fail'
                     })
 
-            if lock_delete_form_id in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
+            if self.get_lock_delete_form_id() in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
                 if delete_form.is_valid():
                     with transaction.atomic():
                         documento_lock.delete()
@@ -192,10 +217,3 @@ class LuzfcbLockMixin(object):
                     #     'status': 'fail'
                     # })
         return original_response
-
-
-class EditarView(LuzfcbLockMixin, generic.UpdateView):
-    template_name = 'app_test/person_update.html'
-    model = Person
-    fields = ('nome',)
-

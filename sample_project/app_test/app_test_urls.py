@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from . import views as app_test_views
-from luzfcb_dj_simplelock import views as luzfcb_dj_simplelock_views
 
 urlpatterns = [
     url(r'^$',
@@ -16,7 +15,7 @@ urlpatterns = [
         name='detail'
         ),
     url(r'^update/(?P<pk>\d+)/$',
-        luzfcb_dj_simplelock_views.EditarView.as_view(),
+        app_test_views.EditarView.as_view(),
         name='editar',
         ),
 ]
