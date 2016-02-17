@@ -4,12 +4,10 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 
 USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
-@python_2_unicode_compatible
 class ObjectLock(models.Model):
     bloqueado_em = models.DateTimeField(default=timezone.now, blank=True, editable=False)
     bloqueado_por = models.ForeignKey(to=USER_MODEL,
