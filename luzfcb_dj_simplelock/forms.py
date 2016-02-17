@@ -10,13 +10,13 @@ class DeletarForm(forms.Form):
         self._id = id_obj
         super(DeletarForm, self).__init__(*args, **kwargs)
 
-    id = forms.CharField(widget=forms.HiddenInput)
+    idd = forms.CharField(widget=forms.HiddenInput)
     hash = forms.CharField(widget=forms.HiddenInput)
 
     def clean(self):
-        id = self.cleaned_data.get('id')
+        idd = self.cleaned_data.get('idd')
         hash = self.cleaned_data.get('hash')
-        if not self._id == id and not id == hash:
+        if not self._id == idd and not idd == hash:
             raise forms.ValidationError(
                 "Hash errado"
             )
@@ -28,13 +28,13 @@ class ReValidarForm(forms.Form):
         self._id = id_obj
         super(ReValidarForm, self).__init__(*args, **kwargs)
 
-    id = forms.CharField(widget=forms.HiddenInput)
+    idd = forms.CharField(widget=forms.HiddenInput)
     hash = forms.CharField(widget=forms.HiddenInput)
 
     def clean(self):
-        id = self.cleaned_data.get('id')
+        idd = self.cleaned_data.get('idd')
         hash = self.cleaned_data.get('hash')
-        if not self._id == id and not id == hash:
+        if not self._id == idd and not idd == hash:
             raise forms.ValidationError(
                 "Hash errado"
             )
