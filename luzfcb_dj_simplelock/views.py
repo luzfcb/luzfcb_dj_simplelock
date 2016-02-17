@@ -79,9 +79,9 @@ class LuzfcbLockMixin(object):
         context = super(LuzfcbLockMixin, self).get_context_data(**kwargs)
 
         revalidate_form = ReValidarForm(prefix=self.get_lock_revalidate_form_prefix(),
-                                        initial={'hash': self.object.pk, 'id': self.object.pk})
+                                        initial={'hashe': self.object.pk, 'idd': self.object.pk})
         delete_form = DeletarForm(prefix=self.get_lock_delete_form_prefix(),
-                                  initial={'hash': self.object.pk, 'id': self.object.pk})
+                                  initial={'hashe': self.object.pk, 'idd': self.object.pk})
 
         context.update(
             {

@@ -79,7 +79,7 @@ class ExclusiveEditionGetNoLock(TestCase):
 
     def test_ajax_sucess_revalidate_lock(self):
         revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
-                                       initial={'hash': self.model_instance.pk, 'id': self.model_instance.pk})
+                                       initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
         data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
@@ -101,7 +101,7 @@ class ExclusiveEditionGetNoLock(TestCase):
 
     def test_ajax_fail_revalidate_lock(self):
         revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
-                                       initial={'hash': 'errado', 'id': self.model_instance.pk})
+                                       initial={'hashe': 'errado', 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
         data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
@@ -122,7 +122,7 @@ class ExclusiveEditionGetNoLock(TestCase):
 
     def test_ajax_sucess_deletar_lock(self):
         deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
-                                   initial={'hash': self.model_instance.pk, 'id': self.model_instance.pk})
+                                   initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
         data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})
@@ -135,7 +135,7 @@ class ExclusiveEditionGetNoLock(TestCase):
 
     def test_ajax_fail_deletar_lock(self):
         deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
-                                   initial={'hash': 'errado', 'id': self.model_instance.pk})
+                                   initial={'hashe': 'errado', 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
         data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})
