@@ -18,12 +18,12 @@ from .utils import get_label
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-default_lock_expire_time_in_seconds = 30
-default_lock_revalidated_at_every_x_seconds = 5
-default_lock_revalidate_form_id = 'id_revalidar_form'
-default_lock_revalidate_form_prefix = 'revalidar'
-default_lock_delete_form_id = 'id_deletar_form'
-default_lock_delete_form_prefix = 'deletar'
+DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = 30
+DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS = 5
+DEFAULT_LOCK_REVALIDATE_FORM_ID = 'id_revalidar_form'
+DEFAULT_LOCK_REVALIDATE_FORM_PREFIX = 'revalidar'
+DEFAULT_LOCK_DELETE_FORM_ID = 'id_deletar_form'
+DEFAULT_LOCK_DELETE_FORM_PREFIX = 'deletar'
 
 
 def revalidate_lock(documento_lock, updated_values_dict):
@@ -42,35 +42,37 @@ class LuzfcbLockMixin(object):
     lock_revalidate_form_prefix = None
     lock_delete_form_id = None
     lock_delete_form_prefix = None
+    lock_use_builtin_jquery = True
+    lock_use_builtin_jquery_csrftoken = True
 
     def get_lock_expire_time_in_seconds(self):
         if not self.lock_expire_time_in_seconds:
-            return default_lock_expire_time_in_seconds
+            return DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS
         return self.lock_expire_time_in_seconds
 
     def get_lock_revalidated_at_every_x_seconds(self):
         if not self.lock_revalidated_at_every_x_seconds:
-            return default_lock_revalidated_at_every_x_seconds
+            return DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS
         return self.lock_revalidated_at_every_x_seconds
 
     def get_lock_revalidate_form_id(self):
         if not self.lock_revalidate_form_id:
-            return default_lock_revalidate_form_id
+            return DEFAULT_LOCK_REVALIDATE_FORM_ID
         return self.lock_revalidate_form_id
 
     def get_lock_revalidate_form_prefix(self):
         if not self.lock_revalidate_form_prefix:
-            return default_lock_revalidate_form_prefix
+            return DEFAULT_LOCK_REVALIDATE_FORM_PREFIX
         return self.lock_revalidate_form_prefix
 
     def get_lock_delete_form_id(self):
         if not self.lock_delete_form_id:
-            return default_lock_delete_form_id
+            return DEFAULT_LOCK_DELETE_FORM_ID
         return self.lock_delete_form_id
 
     def get_lock_delete_form_prefix(self):
         if not self.lock_delete_form_prefix:
-            return default_lock_delete_form_prefix
+            return DEFAULT_LOCK_DELETE_FORM_PREFIX
         return self.lock_delete_form_prefix
 
     def get_context_data(self, **kwargs):
@@ -88,7 +90,9 @@ class LuzfcbLockMixin(object):
                 'delete_form': delete_form,
                 'revalidate_form': revalidate_form,
                 'revalidate_form_id': self.get_lock_revalidate_form_id(),
-                'revalidate_lock_at_every_x_seconds': self.get_lock_revalidated_at_every_x_seconds()
+                'revalidate_lock_at_every_x_seconds': self.get_lock_revalidated_at_every_x_seconds(),
+                'lock_use_builtin_jquery': self.lock_use_builtin_jquery,
+                'lock_use_builtin_jquery_csrftoken': self.lock_use_builtin_jquery_csrftoken
             }
         )
         return context

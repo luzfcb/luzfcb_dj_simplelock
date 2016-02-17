@@ -15,9 +15,12 @@
                 {{ revalidate_form }}
             </form>
         </div>
-
-        <script src="{% static 'luzfcb_dj_simplelock/js/jquery-2.2.0.min.js' %}"></script>
-        <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
+        {% if lock_use_builtin_jquery %}
+            <script src="{% static 'luzfcb_dj_simplelock/js/jquery-2.2.0.min.js' %}"></script>
+        {% endif %}
+        {% if lock_use_builtin_jquery_csrftoken %}
+            <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
+        {% endif %}
 
         <script>(function () {
             'use strict';

@@ -19,4 +19,8 @@ urlpatterns = [
         app_test_views.EditarView.as_view(),
         name='editar',
         ),
+    url(r'^update2/(?P<pk>\d+)/$',
+        app_test_views.EditarView2.as_view(),
+        name='editar2',
+        ),
 ]

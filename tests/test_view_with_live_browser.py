@@ -14,7 +14,7 @@ from django.test import override_settings
 from sample_project.app_test.models import Person
 
 from luzfcb_dj_simplelock.utils import get_label
-from luzfcb_dj_simplelock.views import default_lock_delete_form_prefix
+from luzfcb_dj_simplelock.views import DEFAULT_LOCK_DELETE_FORM_PREFIX
 
 from .utils import SplinterStaticLiveServerTestCase
 
@@ -40,9 +40,9 @@ class MeuTesteDeAceitacao(SplinterStaticLiveServerTestCase):
             'last_name': 'Neo Matrix'
         }
         self.lock_expire_time_in_seconds = 2
-        # ugly monkeypath
+        # ugly monkeypatch
         import luzfcb_dj_simplelock
-        luzfcb_dj_simplelock.views.default_lock_expire_time_in_seconds = self.lock_expire_time_in_seconds
+        luzfcb_dj_simplelock.views.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = self.lock_expire_time_in_seconds
 
         self.model_instance = Person.objects.create(nome="Maria")
         self.model_instance_app_label = get_label(self.model_instance)

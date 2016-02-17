@@ -19,12 +19,14 @@ from luzfcb_dj_simplelock.forms import DeletarForm, ReValidarForm
 from luzfcb_dj_simplelock.models import ObjectLock
 from luzfcb_dj_simplelock.utils import get_label
 from luzfcb_dj_simplelock.views import (
-    default_lock_delete_form_id, default_lock_delete_form_prefix,
-    default_lock_revalidate_form_id, default_lock_revalidate_form_prefix,
-)
+    DEFAULT_LOCK_DELETE_FORM_ID, DEFAULT_LOCK_DELETE_FORM_PREFIX,
+    DEFAULT_LOCK_REVALIDATE_FORM_ID, DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
+    DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS)
 
 
 class ExclusiveEditionGetNoLock(TestCase):
+
+    view_editar_str = 'person:editar'
 
     def setUp(self):
         self.user1_data = {
@@ -41,16 +43,22 @@ class ExclusiveEditionGetNoLock(TestCase):
             'first_name': 'Maria',
             'last_name': 'Neo Matrix'
         }
-        self.lock_expire_time_in_seconds = 2
+        self.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = 2
         # ugly monkeypath
         import luzfcb_dj_simplelock
-        luzfcb_dj_simplelock.views.default_lock_expire_time_in_seconds = self.lock_expire_time_in_seconds
+        luzfcb_dj_simplelock.views.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = self.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS
+
+        self.DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS = DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS
+        self.DEFAULT_LOCK_REVALIDATE_FORM_ID = DEFAULT_LOCK_REVALIDATE_FORM_ID
+        self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX = DEFAULT_LOCK_REVALIDATE_FORM_PREFIX
+        self.DEFAULT_LOCK_DELETE_FORM_ID = DEFAULT_LOCK_DELETE_FORM_ID
+        self.DEFAULT_LOCK_DELETE_FORM_PREFIX = DEFAULT_LOCK_DELETE_FORM_PREFIX
 
         self.model_instance = Person.objects.create(nome="Maria")
         self.model_instance_app_label = get_label(self.model_instance)
         self.user1 = User.objects.create_superuser(**self.user1_data)
         self.user2 = User.objects.create_superuser(**self.user2_data)
-        self.view_url = reverse('person:editar', kwargs={'pk': self.model_instance.pk})
+        self.view_url = reverse(self.view_editar_str, kwargs={'pk': self.model_instance.pk})
         self.client.login(username=self.user1_data['username'], password=self.user1_data['password'])
         self.response = self.client.get(self.view_url)
 
@@ -70,11 +78,11 @@ class ExclusiveEditionGetNoLock(TestCase):
         self.assertContains(response2, text='Disponivel somente para visualização', status_code=200)
 
     def test_ajax_sucess_revalidate_lock(self):
-        revalidar_form = ReValidarForm(prefix=default_lock_revalidate_form_prefix,
+        revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
                                        initial={'hash': self.model_instance.pk, 'id': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
-        data.update({str(default_lock_revalidate_form_id): str(default_lock_revalidate_form_id)})
+        data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
         response_post = self.client.post(path=self.view_url,
                                          data=data,
                                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -83,7 +91,7 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "revalidado com sucesso"})
 
         from time import sleep
-        sleep(self.lock_expire_time_in_seconds)
+        sleep(self.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS)
         response_post = self.client.post(path=self.view_url,
                                          data=data,
                                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -92,11 +100,11 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "revalidado com sucesso"})
 
     def test_ajax_fail_revalidate_lock(self):
-        revalidar_form = ReValidarForm(prefix=default_lock_revalidate_form_prefix,
+        revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
                                        initial={'hash': 'errado', 'id': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
-        data.update({str(default_lock_revalidate_form_id): str(default_lock_revalidate_form_id)})
+        data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
         response_post = self.client.post(path=self.view_url,
                                          data=data,
                                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -113,11 +121,11 @@ class ExclusiveEditionGetNoLock(TestCase):
     #                      {"status": "fail", "id": self.model_instance.pk, "mensagem": "post_invalido"})
 
     def test_ajax_sucess_deletar_lock(self):
-        deletar_form = DeletarForm(prefix=default_lock_delete_form_prefix,
+        deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
                                    initial={'hash': self.model_instance.pk, 'id': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
-        data.update({str(default_lock_delete_form_id): str(default_lock_delete_form_id)})
+        data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})
         response_post = self.client.post(path=self.view_url,
                                          data=data,
                                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -126,11 +134,11 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "deletado com sucesso"})
 
     def test_ajax_fail_deletar_lock(self):
-        deletar_form = DeletarForm(prefix=default_lock_delete_form_prefix,
+        deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
                                    initial={'hash': 'errado', 'id': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
-        data.update({str(default_lock_delete_form_id): str(default_lock_delete_form_id)})
+        data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})
         response_post = self.client.post(path=self.view_url,
                                          data=data,
                                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -142,7 +150,7 @@ class ExclusiveEditionGetNoLock(TestCase):
         object_lock_original = ObjectLock.objects.get(model_pk=self.model_instance.pk,
                                                       app_and_model=self.model_instance_app_label)
         from time import sleep
-        sleep(self.lock_expire_time_in_seconds + 1)
+        sleep(self.DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS + 1)
 
         self.client.logout()
         self.client.login(username=self.user2_data['username'], password=self.user2_data['password'])
@@ -153,3 +161,7 @@ class ExclusiveEditionGetNoLock(TestCase):
         # print(object_lock_original)
         # print(object_lock)
         self.assertFalse(object_lock.bloqueado_por == self.user1, "Nao é o usuario que bloqueou")
+
+
+class ExclusiveEditionGetNoLock2(ExclusiveEditionGetNoLock):
+    view_editar_str = 'person:editar2'
