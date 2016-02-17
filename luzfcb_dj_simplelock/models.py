@@ -17,15 +17,9 @@ class ObjectLock(models.Model):
                                       blank=True, on_delete=models.SET_NULL, editable=False)
     bloqueado_por_user_name = models.CharField(blank=True, max_length=500, editable=False)
     bloqueado_por_full_name = models.CharField(blank=True, max_length=500, editable=False)
-    #    session_key = models.CharField('session key', max_length=40, null=True,
-    #                                   blank=True, editable=False)
 
     expire_date = models.DateTimeField('expire date')
 
     app_and_model = models.CharField(max_length=350, editable=False, blank=True)
     model_pk = models.IntegerField(null=True,
                                    blank=True, editable=False, db_index=True)
-
-    def __str__(self):
-        return 'bp:{} - et:{} - app_and_model:{} - model_pk:{}'.format(self.bloqueado_por_user_name, self.expire_date,
-                                                                       self.app_and_model, self.model_pk)

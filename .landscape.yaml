@@ -1,0 +1,20 @@
+doc-warnings: yes
+test-warnings: no
+strictness: veryhigh
+max-line-length: 119
+uses:
+    - django
+autodetect: yes
+requirements:
+    - requirements.txt
+    - requirements-test.txt
+    - requirements_dev.txt
+ignore-paths:
+    - docs
+    - mypackage/vendor
+ignore-patterns:
+    - (^|/)docs(/|$)
+    - (^|/)migrations(/|$)
+python-targets:
+    - 2
+    - 3
