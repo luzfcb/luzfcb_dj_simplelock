@@ -11,15 +11,17 @@ Tests for `luzfcb_dj_simplelock` views module.
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import override_settings
+from sample_project.app_test.models import Person
 
 from luzfcb_dj_simplelock.utils import get_label
-from luzfcb_dj_simplelock.views import (default_lock_delete_form_prefix)
-from sample_project.app_test.models import Person
+from luzfcb_dj_simplelock.views import default_lock_delete_form_prefix
+
 from .utils import SplinterStaticLiveServerTestCase
 
 
 @override_settings(DEBUG=True)
 class MeuTesteDeAceitacao(SplinterStaticLiveServerTestCase):
+
     def setUp(self):
         super(MeuTesteDeAceitacao, self).setUp()
         # self.browser = Browser('firefox')

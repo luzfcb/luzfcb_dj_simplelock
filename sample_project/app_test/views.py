@@ -1,9 +1,10 @@
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.views import generic
 
 from luzfcb_dj_simplelock.views import LuzfcbLockMixin
-from .models import Person
+
 from .forms import PersonForm
+from .models import Person
 
 
 class PersonList(generic.ListView):

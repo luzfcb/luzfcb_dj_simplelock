@@ -13,18 +13,19 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rebar.testing import flatten_to_dict
+from sample_project.app_test.models import Person
 
-from luzfcb_dj_simplelock.forms import ReValidarForm, DeletarForm
+from luzfcb_dj_simplelock.forms import DeletarForm, ReValidarForm
 from luzfcb_dj_simplelock.models import ObjectLock
 from luzfcb_dj_simplelock.utils import get_label
-from luzfcb_dj_simplelock.views import (default_lock_revalidate_form_id,
-                                        default_lock_revalidate_form_prefix,
-                                        default_lock_delete_form_id,
-                                        default_lock_delete_form_prefix)
-from sample_project.app_test.models import Person
+from luzfcb_dj_simplelock.views import (
+    default_lock_delete_form_id, default_lock_delete_form_prefix,
+    default_lock_revalidate_form_id, default_lock_revalidate_form_prefix,
+)
 
 
 class ExclusiveEditionGetNoLock(TestCase):
+
     def setUp(self):
         self.user1_data = {
             'username': 'admin',
