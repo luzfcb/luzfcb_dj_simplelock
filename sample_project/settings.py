@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sample_project.app_test',
-    'luzfcb_dj_simplelock',
+    'luzfcb_dj_simplelock.apps.DjSimpleLockAppConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
