@@ -5,12 +5,12 @@
 
         <div style="display: none" id="dj_simplelock">
 
-            <form action="{% url update_view_str object.pk %}" method="post" id="{{ delete_form_id }}">
+            <form action="{% if update_view_str %}{% url update_view_str object.pk %}{% else %}.{% endif %}" method="post" id="{{ delete_form_id }}">
                 {% csrf_token %}
                 {{ delete_form }}
             </form>
 
-            <form action="{% url update_view_str object.pk %}" method="post" id="{{ revalidate_form_id }}">
+            <form action="{% if update_view_str %}{% url update_view_str object.pk %}{% else %}.{% endif %}" method="post" id="{{ revalidate_form_id }}">
                 {% csrf_token %}
                 {{ revalidate_form }}
             </form>
@@ -50,14 +50,14 @@
             function create_post(form_element) {
                 console.log("create post is working!"); // sanity check
                 var data = $(form_element).serializeArray();
-
+                var url_to_post = $(form_element).attr('action').replace(/\s/g, "");
 
                 data.push({'name': form_element.id, 'value': form_element.id});
 
                 //console.table(data);
 
                 $.ajax({
-                    url: $(form_element).attr('action').replace(/\s/g, ""), // the endpoint
+                    url: url_to_post, // the endpoint
                     cache: false,
                     type: "POST", // http method
                     data: data // data sent with the post request

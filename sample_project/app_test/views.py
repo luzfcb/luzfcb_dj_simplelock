@@ -33,11 +33,12 @@ class EditarView(LuzfcbLockMixin, generic.UpdateView):
     prefix = 'person_prefix'
     fields = ('nome',)
     form_id = 'id_person_update_form_submit'
-    update_view_str = 'person:editar'
-    detail_view_str = 'person:detail'
+    update_view_named_url = None
+    # update_view_named_url = 'person:editar'
+    detail_view_named_url = 'person:detail'
 
     def get_success_url(self):
-        return reverse(self.update_view_str, kwargs={'pk': self.object.pk})
+        return reverse('person:editar', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super(EditarView, self).get_context_data(**kwargs)

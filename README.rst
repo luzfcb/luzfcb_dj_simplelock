@@ -23,11 +23,25 @@ Quickstart
 
 Install luzfcb_dj_simplelock::
 
-    pip install luzfcb_dj_simplelock
+    pip install -e git+https://github.com/luzfcb/luzfcb_dj_simplelock.git#egg=luzfcb_dj_simplelock
 
-Then use it in a project::
 
-    import luzfcb_dj_simplelock
+Then use it in a project
+
+Add 'luzfcb_dj_simplelock.apps.DjSimpleLockAppConfig' to yourINSTALLED_APPS::
+
+    INSTALLED_APPS = [
+        ...
+        'luzfcb_dj_simplelock.apps.DjSimpleLockAppConfig',
+        ..
+    ]
+
+    from luzfcb_dj_simplelock.views import LuzfcbLockMixin
+
+    class MyView(LuzfcbLockMixin, UpdateView):
+        model = Person
+
+
 
 Features
 --------

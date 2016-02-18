@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import logging
 
 from django.contrib import messages
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import JsonResponse
@@ -44,6 +45,8 @@ class LuzfcbLockMixin(object):
     lock_delete_form_prefix = None
     lock_use_builtin_jquery = True
     lock_use_builtin_jquery_csrftoken = True
+    update_view_named_url = None
+    detail_view_named_url = None
 
     def get_lock_expire_time_in_seconds(self):
         if not self.lock_expire_time_in_seconds:
@@ -75,6 +78,20 @@ class LuzfcbLockMixin(object):
             return DEFAULT_LOCK_DELETE_FORM_PREFIX
         return self.lock_delete_form_prefix
 
+    def get_update_view_named_url(self):
+        # if self.update_view_named_url is None:
+        #     raise ImproperlyConfigured(
+        #         '{0} requires the "update_view_named_url" attribute to be '
+        #         'set.'.format(self.__class__.__name__))
+        return self.update_view_named_url
+
+    def get_detail_view_named_url(self):
+        # if self.detail_view_named_url is None:
+        #     raise ImproperlyConfigured(
+        #         '{0} requires the "detail_view_named_url" attribute to be '
+        #         'set.'.format(self.__class__.__name__))
+        return self.detail_view_named_url
+
     def get_context_data(self, **kwargs):
         context = super(LuzfcbLockMixin, self).get_context_data(**kwargs)
 
@@ -85,7 +102,7 @@ class LuzfcbLockMixin(object):
 
         context.update(
             {
-                'update_view_str': self.update_view_str,
+                'update_view_str': self.get_update_view_named_url(),
                 'delete_form_id': self.get_lock_delete_form_id(),
                 'delete_form': delete_form,
                 'revalidate_form': revalidate_form,
@@ -131,7 +148,7 @@ class LuzfcbLockMixin(object):
             # nao autoriza a edicao e redireciona para a pagina de visualizacao,
             # informando o usuario que o documento ja esta sendo editado
             if documento_lock and not documento_lock.bloqueado_por.pk == request.user.pk:
-                detail_url = reverse(self.detail_view_str, kwargs={'pk': self.object.pk})
+                detail_url = reverse(self.get_detail_view_named_url(), kwargs={'pk': self.object.pk})
                 msg = 'Documento está sendo editado por {} - Disponivel somente para visualização'.format(
                     documento_lock.bloqueado_por_full_name or documento_lock.bloqueado_por_user_name)
                 messages.add_message(request, messages.INFO, msg)
@@ -180,8 +197,10 @@ class LuzfcbLockMixin(object):
                         revalidate_lock(documento_lock, updated_values)
                     # messages.add_message(request, messages.INFO, 'revalidado com sucesso')
                     # print('revalidado com sucesso')
+                    msg = 'revalidado com sucesso'
+                    logger.debug(msg)
                     return JsonResponse({
-                        'mensagem': 'revalidado com sucesso',
+                        'mensagem': msg,
                         'id': self.object.pk,
                         'status': 'success'
                     })
