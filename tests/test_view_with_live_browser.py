@@ -21,7 +21,6 @@ from .utils import SplinterStaticLiveServerTestCase
 
 @override_settings(DEBUG=True)
 class MeuTesteDeAceitacao(SplinterStaticLiveServerTestCase):
-    use_virtual_display = False
 
     def setUp(self):
         super(MeuTesteDeAceitacao, self).setUp()
