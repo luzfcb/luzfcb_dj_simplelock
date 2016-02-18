@@ -30,13 +30,29 @@ class PersonCreate(generic.CreateView):
 class EditarView(LuzfcbLockMixin, generic.UpdateView):
     template_name = 'app_test/person_update.html'
     model = Person
+    prefix = 'person_prefix'
     fields = ('nome',)
-
+    form_id = 'id_person_update_form_submit'
     update_view_str = 'person:editar'
     detail_view_str = 'person:detail'
 
     def get_success_url(self):
         return reverse(self.update_view_str, kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super(EditarView, self).get_context_data(**kwargs)
+        send_ajax_post = self.request.GET.get('ajax', None)
+        context.update({
+            'send_ajax_post': send_ajax_post if send_ajax_post else False
+        })
+        return context
+
+    def form_valid(self, form):
+        if self.form_id in self.request.POST:
+            return super(EditarView, self).form_valid(form)
+        else:
+            a = {}  # NOQA
+            return self.render_to_response(context=self.get_context_data(**a))
 
 
 DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = 1

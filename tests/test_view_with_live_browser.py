@@ -21,6 +21,7 @@ from .utils import SplinterStaticLiveServerTestCase
 
 @override_settings(DEBUG=True)
 class MeuTesteDeAceitacao(SplinterStaticLiveServerTestCase):
+    use_virtual_display = False
 
     def setUp(self):
         super(MeuTesteDeAceitacao, self).setUp()
@@ -52,5 +53,13 @@ class MeuTesteDeAceitacao(SplinterStaticLiveServerTestCase):
 
     def test_open_url(self):
         self.login_as(username=self.user1_data['username'], password=self.user1_data['password'])
+        self.wait_for_seconds(3)
         print("abrindo url")
         self.open(self.view_url)
+        botao = self.browser.find_by_name('id_person_update_form_submit')
+        botao.click()
+        self.wait_for_seconds(5)
+        self.open("{}?ajax='ajax'".format(self.view_url))
+        botao = self.browser.find_by_name('id_person_update_form_submit')
+        botao.click()
+        self.wait_for_seconds(5)

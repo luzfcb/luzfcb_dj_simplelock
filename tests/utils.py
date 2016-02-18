@@ -9,12 +9,14 @@ class SplinterStaticLiveServerTestCase(StaticLiveServerTestCase):
     # fixtures = ['user-data.json']
     splinter_driver = 'firefox'
     virtual_display_size = (1024, 768)
+    use_virtual_display = True
 
     @classmethod
     def setUpClass(cls):
         super(SplinterStaticLiveServerTestCase, cls).setUpClass()
-        cls.virtual_display = Display(visible=0, size=cls.virtual_display_size)
-        cls.virtual_display.start()
+        if cls.use_virtual_display:
+            cls.virtual_display = Display(visible=0, size=cls.virtual_display_size)
+            cls.virtual_display.start()
         cls.browser = Browser(cls.splinter_driver)
         cls.browser.driver.maximize_window()
 
@@ -22,7 +24,8 @@ class SplinterStaticLiveServerTestCase(StaticLiveServerTestCase):
     def tearDownClass(cls):
         super(SplinterStaticLiveServerTestCase, cls).tearDownClass()
         cls.browser.quit()
-        cls.virtual_display.stop()
+        if cls.use_virtual_display:
+            cls.virtual_display.stop()
 
     def open(self, url):
         self.browser.visit("%s%s" % (self.live_server_url, url))

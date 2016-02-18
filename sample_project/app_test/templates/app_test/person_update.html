@@ -3,14 +3,60 @@
 {% block content %}
     <h3>User: {{ request.user.username }}</h3>
 
-    <form action="{% url 'person:editar' object.pk %}" method="post" id="id_pessoa:update_form">
+    <form action="{% url 'person:editar' object.pk %}" method="post" id="id_person_update_form">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="id_pessoa_update_form_submit">
+        <input type="submit" value="id_person_update_form_submit" name="id_person_update_form_submit">
     </form>
 
 {% endblock content %}
 
 {% block extra_js %}
     {% include "luzfcb_dj_simplelock/dj_simplelock.html" %}
+
+    {% if send_ajax_post %}
+        <script>
+
+            (function () {
+                var $person_form = $('#id_person_update_form');
+                $person_form.on('submit', function (event) {
+                    event.preventDefault();
+                    console.log("form " + this.id + " submitted!"); // sanity check
+                    //console.log(this);
+                    create_post(this);
+                });
+
+                // AJAX for posting
+                function create_post(form_element) {
+                    console.log("create post is working!"); // sanity check
+                    var data = $(form_element).serializeArray();
+
+
+                    {#                data.push({'name': form_element.id, 'value': form_element.id});#}
+
+                    //console.table(data);
+
+                    $.ajax({
+                        url: $(form_element).attr('action').replace(/\s/g, ""), // the endpoint
+                        cache: false,
+                        type: "POST", // http method
+                        data: data // data sent with the post request
+                    }).done(function (json) {
+                        // handle a successful response
+                        console.log(json); // log the returned json to the console
+                        console.log("done"); // another sanity check
+                    }).fail(function (xhr, errmsg, err) {
+                        // handle a non-successful response
+                        console.log('fail');
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+
+                    }).always(function () {
+                        console.log('always');
+                    });
+                }
+
+            })();
+
+        </script>
+    {% endif %}
 {% endblock extra_js %}
