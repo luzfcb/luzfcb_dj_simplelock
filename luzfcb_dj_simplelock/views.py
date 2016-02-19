@@ -16,7 +16,7 @@ from .utils import get_label
 
 ###################################################################################################################
 # Get an instance of a logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # pylint:disable=invalid-name
 
 DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = 30
 DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS = 20
@@ -37,7 +37,7 @@ def revalidate_lock(documento_lock, updated_values_dict):
 
 class LuzfcbLockMixin(object):
     lock_expire_time_in_seconds = None
-    lock_revalidated_at_every_x_seconds = None
+    lock_revalidated_at_every_x_seconds = None  # pylint:disable=invalid-name
     lock_revalidate_form_id = None
     lock_revalidate_form_prefix = None
     lock_delete_form_id = None

@@ -15,6 +15,7 @@ ignore-patterns:
     - (^|/)docs(/|$)
     - (^|/)migrations(/|$)
     - sample_project/
+    - runtests.py
 python-targets:
     - 2
     - 3
