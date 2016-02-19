@@ -15,7 +15,7 @@ from django.test import TestCase
 from rebar.testing import flatten_to_dict
 from sample_project.app_test.models import Person
 
-from luzfcb_dj_simplelock.forms import DeletarForm, ReValidarForm
+from luzfcb_dj_simplelock.forms import DeleteForm, ReValidateForm
 from luzfcb_dj_simplelock.models import ObjectLock
 from luzfcb_dj_simplelock.utils import get_label
 from luzfcb_dj_simplelock.views import (
@@ -78,8 +78,8 @@ class ExclusiveEditionGetNoLock(TestCase):
         self.assertContains(response2, text='Disponivel somente para visualização', status_code=200)
 
     def test_ajax_sucess_revalidate_lock(self):
-        revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
-                                       initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
+        revalidar_form = ReValidateForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
+                                        initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
         data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
@@ -100,8 +100,8 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "revalidado com sucesso"})
 
     def test_ajax_fail_revalidate_lock(self):
-        revalidar_form = ReValidarForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
-                                       initial={'hashe': 'errado', 'idd': self.model_instance.pk})
+        revalidar_form = ReValidateForm(prefix=self.DEFAULT_LOCK_REVALIDATE_FORM_PREFIX,
+                                        initial={'hashe': 'errado', 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(revalidar_form)
         data.update({str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID): str(self.DEFAULT_LOCK_REVALIDATE_FORM_ID)})
@@ -121,8 +121,8 @@ class ExclusiveEditionGetNoLock(TestCase):
     #                      {"status": "fail", "id": self.model_instance.pk, "mensagem": "post_invalido"})
 
     def test_ajax_sucess_deletar_lock(self):
-        deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
-                                   initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
+        deletar_form = DeleteForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
+                                  initial={'hashe': self.model_instance.pk, 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
         data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})
@@ -134,8 +134,8 @@ class ExclusiveEditionGetNoLock(TestCase):
                          {"status": "success", "id": self.model_instance.pk, "mensagem": "deletado com sucesso"})
 
     def test_ajax_fail_deletar_lock(self):
-        deletar_form = DeletarForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
-                                   initial={'hashe': 'errado', 'idd': self.model_instance.pk})
+        deletar_form = DeleteForm(prefix=self.DEFAULT_LOCK_DELETE_FORM_PREFIX,
+                                  initial={'hashe': 'errado', 'idd': self.model_instance.pk})
 
         data = flatten_to_dict(deletar_form)
         data.update({str(self.DEFAULT_LOCK_DELETE_FORM_ID): str(self.DEFAULT_LOCK_DELETE_FORM_ID)})

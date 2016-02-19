@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 from django import forms
 
 
-class DeletarForm(forms.Form):
+class DeleteForm(forms.Form):
 
     def __init__(self, id_obj=None, *args, **kwargs):
         self._id = id_obj
-        super(DeletarForm, self).__init__(*args, **kwargs)
+        super(DeleteForm, self).__init__(*args, **kwargs)
 
     idd = forms.CharField(widget=forms.HiddenInput)
     hashe = forms.CharField(widget=forms.HiddenInput)
@@ -22,11 +22,11 @@ class DeletarForm(forms.Form):
             )
 
 
-class ReValidarForm(forms.Form):
+class ReValidateForm(forms.Form):
 
     def __init__(self, id_obj=None, *args, **kwargs):
         self._id = id_obj
-        super(ReValidarForm, self).__init__(*args, **kwargs)
+        super(ReValidateForm, self).__init__(*args, **kwargs)
 
     idd = forms.CharField(widget=forms.HiddenInput)
     hashe = forms.CharField(widget=forms.HiddenInput)

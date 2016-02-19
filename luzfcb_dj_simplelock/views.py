@@ -5,13 +5,12 @@ import logging
 
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.utils import timezone
 
-from .forms import DeletarForm, ReValidarForm
+from .forms import DeleteForm, ReValidateForm
 from .models import ObjectLock
 from .utils import get_label
 
@@ -20,7 +19,7 @@ from .utils import get_label
 logger = logging.getLogger(__name__)
 
 DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS = 30
-DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS = 5
+DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS = 20
 DEFAULT_LOCK_REVALIDATE_FORM_ID = 'id_revalidar_form'
 DEFAULT_LOCK_REVALIDATE_FORM_PREFIX = 'revalidar'
 DEFAULT_LOCK_DELETE_FORM_ID = 'id_deletar_form'
@@ -45,17 +44,25 @@ class LuzfcbLockMixin(object):
     lock_delete_form_prefix = None
     lock_use_builtin_jquery = True
     lock_use_builtin_jquery_csrftoken = True
-    update_view_named_url = None
-    detail_view_named_url = None
+    lock_url_to_redirect_if_locked = None
+    lock_this_view_url = None
 
     def get_lock_expire_time_in_seconds(self):
         if not self.lock_expire_time_in_seconds:
             return DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS
+        if self.lock_expire_time_in_seconds < 1:
+            raise ImproperlyConfigured(
+                '{0} requires the "lock_expire_time_in_seconds" attribute must be a positive integer'
+                ''.format(self.__class__.__name__))
         return self.lock_expire_time_in_seconds
 
     def get_lock_revalidated_at_every_x_seconds(self):
         if not self.lock_revalidated_at_every_x_seconds:
             return DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS
+        if self.lock_revalidated_at_every_x_seconds > self.get_lock_expire_time_in_seconds():
+            raise ImproperlyConfigured(
+                '{0} "lock_revalidated_at_every_x_seconds" attribute should be less than "lock_expire_time_in_seconds"'
+                ''.format(self.__class__.__name__))
         return self.lock_revalidated_at_every_x_seconds
 
     def get_lock_revalidate_form_id(self):
@@ -78,31 +85,33 @@ class LuzfcbLockMixin(object):
             return DEFAULT_LOCK_DELETE_FORM_PREFIX
         return self.lock_delete_form_prefix
 
-    def get_update_view_named_url(self):
+    def get_lock_this_view_url(self):
         # if self.update_view_named_url is None:
         #     raise ImproperlyConfigured(
         #         '{0} requires the "update_view_named_url" attribute to be '
         #         'set.'.format(self.__class__.__name__))
-        return self.update_view_named_url
+        return self.lock_this_view_url
 
-    def get_detail_view_named_url(self):
-        # if self.detail_view_named_url is None:
-        #     raise ImproperlyConfigured(
-        #         '{0} requires the "detail_view_named_url" attribute to be '
-        #         'set.'.format(self.__class__.__name__))
-        return self.detail_view_named_url
+    def get_lock_url_to_redirect_if_locked(self):
+        if self.lock_url_to_redirect_if_locked is None:
+            raise ImproperlyConfigured(
+                '{0} is missing the '
+                'lock_redirect_to_url_if_locked. Define {0}.lock_redirect_to_url_if_locked or '
+                'override {0}.get_lock_url_to_redirect_if_locked().'.format(
+                    self.__class__.__name__))
+        return self.lock_url_to_redirect_if_locked
 
     def get_context_data(self, **kwargs):
         context = super(LuzfcbLockMixin, self).get_context_data(**kwargs)
 
-        revalidate_form = ReValidarForm(prefix=self.get_lock_revalidate_form_prefix(),
-                                        initial={'hashe': self.object.pk, 'idd': self.object.pk})
-        delete_form = DeletarForm(prefix=self.get_lock_delete_form_prefix(),
-                                  initial={'hashe': self.object.pk, 'idd': self.object.pk})
+        revalidate_form = ReValidateForm(prefix=self.get_lock_revalidate_form_prefix(),
+                                         initial={'hashe': self.object.pk, 'idd': self.object.pk})
+        delete_form = DeleteForm(prefix=self.get_lock_delete_form_prefix(),
+                                 initial={'hashe': self.object.pk, 'idd': self.object.pk})
 
         context.update(
             {
-                'update_view_str': self.get_update_view_named_url(),
+                'update_view_str': self.get_lock_this_view_url(),
                 'delete_form_id': self.get_lock_delete_form_id(),
                 'delete_form': delete_form,
                 'revalidate_form': revalidate_form,
@@ -148,13 +157,13 @@ class LuzfcbLockMixin(object):
             # nao autoriza a edicao e redireciona para a pagina de visualizacao,
             # informando o usuario que o documento ja esta sendo editado
             if documento_lock and not documento_lock.bloqueado_por.pk == request.user.pk:
-                detail_url = reverse(self.get_detail_view_named_url(), kwargs={'pk': self.object.pk})
+                url_to_redirect_if_locked = self.get_lock_url_to_redirect_if_locked()
                 msg = 'Documento está sendo editado por {} - Disponivel somente para visualização'.format(
                     documento_lock.bloqueado_por_full_name or documento_lock.bloqueado_por_user_name)
                 messages.add_message(request, messages.INFO, msg)
                 logger.debug(msg)
                 # print(msg)
-                return redirect(detail_url, permanent=False)
+                return redirect(url_to_redirect_if_locked, permanent=False)
 
         return original_response
 
@@ -180,14 +189,14 @@ class LuzfcbLockMixin(object):
                                                                        model_pk=self.object.pk)
         if request.is_ajax:
 
-            revalidate_form = ReValidarForm(data=request.POST,
-                                            files=request.FILES,
-                                            prefix=self.get_lock_revalidate_form_prefix(),
-                                            id_obj=self.object.pk)
-            delete_form = DeletarForm(data=request.POST,
-                                      files=request.FILES,
-                                      prefix=self.get_lock_delete_form_prefix(),
-                                      id_obj=self.object.pk)
+            revalidate_form = ReValidateForm(data=request.POST,
+                                             files=request.FILES,
+                                             prefix=self.get_lock_revalidate_form_prefix(),
+                                             id_obj=self.object.pk)
+            delete_form = DeleteForm(data=request.POST,
+                                     files=request.FILES,
+                                     prefix=self.get_lock_delete_form_prefix(),
+                                     id_obj=self.object.pk)
 
             if self.get_lock_revalidate_form_id() in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
                 if revalidate_form.is_valid():

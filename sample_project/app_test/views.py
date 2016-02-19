@@ -33,12 +33,14 @@ class EditarView(LuzfcbLockMixin, generic.UpdateView):
     prefix = 'person_prefix'
     fields = ('nome',)
     form_id = 'id_person_update_form_submit'
-    update_view_named_url = None
+    lock_this_view_url = None
     # update_view_named_url = 'person:editar'
-    detail_view_named_url = 'person:detail'
 
     def get_success_url(self):
         return reverse('person:editar', kwargs={'pk': self.object.pk})
+
+    def get_lock_url_to_redirect_if_locked(self):
+        return reverse('person:detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super(EditarView, self).get_context_data(**kwargs)
@@ -65,7 +67,6 @@ DEFAULT_LOCK_DELETE_FORM_PREFIX = 'deletar'
 
 
 class EditarView2(EditarView):
-    update_view_str = 'person:editar2'
     lock_expire_time_in_seconds = DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS
     lock_revalidated_at_every_x_seconds = DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS
     lock_revalidate_form_id = DEFAULT_LOCK_REVALIDATE_FORM_ID
