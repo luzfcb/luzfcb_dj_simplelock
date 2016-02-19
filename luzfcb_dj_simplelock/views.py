@@ -43,11 +43,11 @@ class LuzfcbLockMixin(object):
     lock_delete_form_id = None
     lock_delete_form_prefix = None
     lock_use_builtin_jquery = True
-    lock_use_builtin_jquery_csrftoken = True
-    lock_url_to_redirect_if_locked = None
+    lock_use_builtin_jquery_csrftoken = True  # pylint:disable=invalid-name
+    lock_url_to_redirect_if_locked = None  # pylint:disable=invalid-name
     lock_this_view_url = None
 
-    def get_lock_expire_time_in_seconds(self):
+    def get_lock_expire_time_in_seconds(self):  # pylint:disable=invalid-name
         if not self.lock_expire_time_in_seconds:
             return DEFAULT_LOCK_EXPIRE_TIME_IN_SECONDS
         if self.lock_expire_time_in_seconds < 1:
@@ -56,7 +56,7 @@ class LuzfcbLockMixin(object):
                 ''.format(self.__class__.__name__))
         return self.lock_expire_time_in_seconds
 
-    def get_lock_revalidated_at_every_x_seconds(self):
+    def get_lock_revalidated_at_every_x_seconds(self):  # pylint:disable=invalid-name
         if not self.lock_revalidated_at_every_x_seconds:
             return DEFAULT_LOCK_REVALIDATED_AT_EVERY_X_SECONDS
         if self.lock_revalidated_at_every_x_seconds > self.get_lock_expire_time_in_seconds():
@@ -92,7 +92,7 @@ class LuzfcbLockMixin(object):
         #         'set.'.format(self.__class__.__name__))
         return self.lock_this_view_url
 
-    def get_lock_url_to_redirect_if_locked(self):
+    def get_lock_url_to_redirect_if_locked(self):  # pylint:disable=invalid-name
         if self.lock_url_to_redirect_if_locked is None:
             raise ImproperlyConfigured(
                 '{0} is missing the '

@@ -14,7 +14,7 @@ ignore-paths:
 ignore-patterns:
     - (^|/)docs(/|$)
     - (^|/)migrations(/|$)
-    - sample_project/settings.py
+    - sample_project/
 python-targets:
     - 2
     - 3
