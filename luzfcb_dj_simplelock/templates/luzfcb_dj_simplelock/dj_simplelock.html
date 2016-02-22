@@ -22,76 +22,77 @@
             <script src="{% static 'luzfcb_dj_simplelock/js/jquery_csrftoken.js' %}"></script>
         {% endif %}
 
-        <script>(function () {
-            'use strict';
-            // Use 'djsimplelock' as namespace.
-            //if (window.luzfcb == undefined) window.luzfcb = {};
+        <script>
+            (function (window, jQuery, luzfcb) {
+                'use strict';
+                // Use 'djsimplelock' as namespace.
+                //if (window.luzfcb == undefined) window.luzfcb = {};
 
-            var $revalidate_form = $('#{{ revalidate_form_id }}');
-            var $delete_form = $('#{{ delete_form_id }}');
-            var revalidate_lock_at_every_x_seconds = parseInt({{ revalidate_lock_at_every_x_seconds }});
+                var $revalidate_form = jQuery('#{{ revalidate_form_id }}');
+                var $delete_form = jQuery('#{{ delete_form_id }}');
+                var revalidate_lock_at_every_x_seconds = parseInt({{ revalidate_lock_at_every_x_seconds }});
 
-            $revalidate_form.on('submit', function (event) {
-                event.preventDefault();
-                console.log("form " + this.id + " submitted!"); // sanity check
-                //console.log(this);
-                create_post(this);
-            });
-
-
-            $delete_form.on('submit', function (event) {
-                event.preventDefault();
-                console.log("form " + this.id + " submitted!"); // sanity check
-                //console.log(this);
-                create_post(this);
-            });
-
-            // AJAX for posting
-            function create_post(form_element) {
-                console.log("create post is working!"); // sanity check
-                var data = $(form_element).serializeArray();
-                var url_to_post = $(form_element).attr('action').replace(/\s/g, "");
-
-                data.push({'name': form_element.id, 'value': form_element.id});
-
-                //console.table(data);
-
-                $.ajax({
-                    url: url_to_post, // the endpoint
-                    cache: false,
-                    type: "POST", // http method
-                    data: data // data sent with the post request
-                }).done(function (json) {
-                    // handle a successful response
-                    console.log(json); // log the returned json to the console
-                    console.log("done"); // another sanity check
-                }).fail(function (xhr, errmsg, err) {
-                    // handle a non-successful response
-                    console.log('fail');
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-
-                }).always(function () {
-                    console.log('always');
+                $revalidate_form.on('submit', function (event) {
+                    event.preventDefault();
+{#                    console.log("form " + this.id + " submitted!"); // sanity check#}
+                    //console.log(this);
+                    create_post(this);
                 });
-            }
 
-            function revalidate() {
-                $revalidate_form.submit();
-            }
 
-            function desbloquear() {
-                $delete_form.submit();
-            }
+                $delete_form.on('submit', function (event) {
+                    event.preventDefault();
+{#                    console.log("form " + this.id + " submitted!"); // sanity check#}
+                    //console.log(this);
+                    create_post(this);
+                });
 
-            var timeout = setInterval(revalidate, revalidate_lock_at_every_x_seconds * 1000);
+                // AJAX for posting
+                function create_post(form_element) {
+{#                    console.log("create post is working!"); // sanity check#}
+                    var data = jQuery(form_element).serializeArray();
+                    var url_to_post = jQuery(form_element).attr('action').replace(/\s/g, "");
 
-            if (window.addEventListener) {
-                window.addEventListener('beforeunload', desbloquear, false);
-            } else {
-                window.attachEvent('onbeforeunload', desbloquear);
-            }
+                    data.push({'name': form_element.id, 'value': form_element.id});
 
-        })();
+                    //console.table(data);
+
+                    jQuery.ajax({
+                        url: url_to_post, // the endpoint
+                        cache: false,
+                        type: "POST", // http method
+                        data: data // data sent with the post request
+                    }).done(function (json) {
+                        // handle a successful response
+                        console.log(json['mensagem'] +  ' - ' + 'proximo em: ' + revalidate_lock_at_every_x_seconds + 's'); // log the returned json to the console
+{#                        console.log("done"); // another sanity check#}
+                    }).fail(function (xhr, errmsg, err) {
+                        // handle a non-successful response
+{#                        console.log('fail');#}
+{#                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console#}
+
+                    }).always(function () {
+{#                        console.log('always');#}
+                    });
+                }
+
+                function revalidate() {
+                    $revalidate_form.submit();
+                }
+
+                function desbloquear() {
+                    $delete_form.submit();
+                }
+
+                luzfcb.revalidate_timeout = setInterval(revalidate, revalidate_lock_at_every_x_seconds * 1000);
+
+                if (window.addEventListener) {
+                    window.addEventListener('beforeunload', desbloquear, false);
+                } else {
+                    window.attachEvent('onbeforeunload', desbloquear);
+                }
+
+            })(window, jQuery, window.luzfcb || (window.luzfcb = {}));
         </script>
     {% endif %}
 {% endblock dj_simplelock %}
