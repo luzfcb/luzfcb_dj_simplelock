@@ -21,5 +21,6 @@ class ObjectLock(models.Model):
     app_and_model = models.CharField(max_length=350, editable=False, blank=True)
     model_pk = models.IntegerField(null=True,
                                    blank=True, editable=False, db_index=True)
+
     class Meta:
         unique_together = (('app_and_model', 'model_pk'),)
