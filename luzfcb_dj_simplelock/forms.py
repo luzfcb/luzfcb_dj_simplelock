@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django import forms
 
+# TODO: Incluir geracao do hash para verificacao se pode ou nao revalidar o bloqueio
 
 class DeleteForm(forms.Form):
 
