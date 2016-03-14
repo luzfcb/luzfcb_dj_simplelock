@@ -48,9 +48,10 @@ Use Mixin::
         #
         lock_expire_time_in_seconds = 30
         lock_revalidated_at_every_x_seconds = 25
-
-        lock_use_builtin_jquery = False
-        lock_use_builtin_jquery_csrftoken = False
+        
+        # 
+        lock_use_builtin_jquery = False # default is True
+        lock_use_builtin_jquery_csrftoken = False # default is True
         model = Person
 
         def get_lock_url_to_redirect_if_locked(self):
