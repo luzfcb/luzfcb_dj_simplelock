@@ -5,6 +5,7 @@ from django import forms
 
 # TODO: Incluir geracao do hash para verificacao se pode ou nao revalidar o bloqueio
 
+
 class DeleteForm(forms.Form):
 
     def __init__(self, id_obj=None, *args, **kwargs):

@@ -36,6 +36,7 @@ def revalidate_lock(documento_lock, updated_values_dict):
 
 
 class LuzfcbLockMixin(object):
+
     lock_expire_time_in_seconds = None
     lock_revalidated_at_every_x_seconds = None  # pylint:disable=invalid-name
     lock_revalidate_form_id = None
@@ -168,26 +169,27 @@ class LuzfcbLockMixin(object):
         return original_response
 
     def post(self, request, *args, **kwargs):
-        original_response = super(LuzfcbLockMixin, self).post(request, *args, **kwargs)
-        label = get_label(self.object)
-        now_time = timezone.now()
-        next_expire_time = now_time + timezone.timedelta(seconds=self.get_lock_expire_time_in_seconds())
-        updated_values = {'model_pk': self.object.pk,
-                          'app_and_model': label,
-                          'bloqueado_por': request.user,
-                          'bloqueado_por_user_name': request.user.username,
-                          'bloqueado_por_full_name': request.user.get_full_name(),
-                          # session_key: session.session_key,
-                          'expire_date': next_expire_time}
+        if request.is_ajax and self.get_lock_revalidate_form_id() in request.POST or self.get_lock_delete_form_id() in request.POST:  # noqa
+            self.object = self.get_object()
+            label = get_label(self.object)
+            now_time = timezone.now()
+            next_expire_time = now_time + timezone.timedelta(seconds=self.get_lock_expire_time_in_seconds())
+            updated_values = {'model_pk': self.object.pk,
+                              'app_and_model': label,
+                              'bloqueado_por': request.user,
+                              'bloqueado_por_user_name': request.user.username,
+                              'bloqueado_por_full_name': request.user.get_full_name(),
+                              # session_key: session.session_key,
+                              'expire_date': next_expire_time}
 
-        # obtem o registro de bloqueio existente ou cria um novo.
-        # a obtencao ou criacao eh feita em uma unica transacao
-        # assegurada que nao há concorrencia
-        with transaction.atomic():
-            documento_lock, created = ObjectLock.objects.get_or_create(defaults=updated_values,
-                                                                       app_and_model=label,
-                                                                       model_pk=self.object.pk)
-        if request.is_ajax:
+            # obtem o registro de bloqueio existente ou cria um novo.
+            # a obtencao ou criacao eh feita em uma unica transacao
+            # assegurada que nao há concorrencia
+            with transaction.atomic():
+                documento_lock, created = ObjectLock.objects.get_or_create(defaults=updated_values,
+                                                                           app_and_model=label,
+                                                                           model_pk=self.object.pk)
+
 
             revalidate_form = ReValidateForm(data=request.POST,
                                              files=request.FILES,
@@ -198,7 +200,7 @@ class LuzfcbLockMixin(object):
                                      prefix=self.get_lock_delete_form_prefix(),
                                      id_obj=self.object.pk)
 
-            if self.get_lock_revalidate_form_id() in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:
+            if self.get_lock_revalidate_form_id() in request.POST and documento_lock.bloqueado_por.pk == request.user.pk:  # noqa
                 if revalidate_form.is_valid():
                     # se registro de bloqueio nao eh novo, e o ele ja expirou, atualiza o registro
                     # para o usuario atual da requisicao e atualiza o novo tempo de expiracao
@@ -248,4 +250,4 @@ class LuzfcbLockMixin(object):
                     #     'id': model_instance.pk,
                     #     'status': 'fail'
                     # })
-        return original_response
+        return super(LuzfcbLockMixin, self).post(request, *args, **kwargs)
